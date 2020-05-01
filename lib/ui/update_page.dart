@@ -3,7 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:modo/models/works.dart';
 var _cur_genre = "ALL";
 
 Widget _buildWorksBody(BuildContext context) {
@@ -23,58 +24,70 @@ Widget _buildWorksList(BuildContext context, List<DocumentSnapshot> snapshot) {
 }
 
 Widget _buildWorksListCard(BuildContext context, DocumentSnapshot data) {
-  final record = Record.fromSnapshot(data);
+  final record = Works.fromSnapshot(data);
   print(record.genre);
   if(_cur_genre!="ALL" && record.genre !=_cur_genre) {
     return Row();
   }
-  return Row(
-      children: <Widget>[
-        Expanded(
-          child: Card(
-            key: ValueKey(record.title),
-            child: InkWell(
-              onTap: (){
-                Navigator.pushNamed(context, '/detail',arguments: record);
-              },
-              child: Column(
+  return Slidable(
+    actionPane: SlidableDrawerActionPane(),
+    actionExtentRatio: 0.25,
+    secondaryActions: <Widget>[
+      IconSlideAction(
+        caption: '구독',
+        color: Colors.black45,
+        icon: Icons.more_horiz,
+        onTap: () => print('More'),
+      ),
+    ],
+    child: Row(
+        children: <Widget>[
+          Expanded(
+            child: Card(
+              key: ValueKey(record.title),
+              child: InkWell(
+                onTap: (){
+                  Navigator.pushNamed(context, '/detail',arguments: record);
+                },
+                child: Column(
 
-                children: <Widget>[
-                  Row(
+                  children: <Widget>[
+                    Row(
 
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: SizedBox(
-                            width: 80.0,
-                            height: 80.0,
-                            child: Image.network(record.image)
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: SizedBox(
+                              width: 80.0,
+                              height: 80.0,
+                              child: Image.network(record.image)
+                          ),
                         ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text('제목 : ' + record.title),
-                          Padding(padding: EdgeInsets.all(4.0)),
-                          Text('작가 : ' + record.writer),
-                          Padding(padding: EdgeInsets.all(4.0)),
-                          Text(record.series,style: TextStyle(color: Colors.black54),),
-                        ],
-                      )
-                    ],
-                  ),
-                  Divider(),
-                  Text(record.tag,style: TextStyle(color: Colors.black54),),
-                  Padding(padding: EdgeInsets.all(1.5)),
-                ],
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text('제목 : ' + record.title),
+                            Padding(padding: EdgeInsets.all(4.0)),
+                            Text('작가 : ' + record.writer),
+                            Padding(padding: EdgeInsets.all(4.0)),
+                            Text(record.series,style: TextStyle(color: Colors.black54),),
+                          ],
+                        )
+                      ],
+                    ),
+                    Divider(),
+                    Text(record.tag,style: TextStyle(color: Colors.black54),),
+                    Padding(padding: EdgeInsets.all(1.5)),
+                  ],
+                ),
               ),
+
             ),
 
           ),
 
-        ),
-
-      ],
+        ],
+    ),
   );
 
   return Padding(
@@ -89,30 +102,6 @@ Widget _buildWorksListCard(BuildContext context, DocumentSnapshot data) {
   );
 }
 
-class Record {
-  String image;
-  final String title;
-  final String writer;
-  final String series;
-  final String genre;
-  final String tag;
-  final String id;
-
-  final DocumentReference reference;
-
-  Record.fromMap(Map<String, dynamic> map, {this.reference})
-      : id = map['userId'] ?? 'no',
-        image = map['image'] ?? 'http://image.yes24.com/goods/89729709/800x0',
-        title = map['title'] ?? '',
-        writer = map['writer'] ?? '',
-        genre = map['genre'] ?? '',
-        series = map['series'] ?? '',
-        tag = map['tag'] ?? '';
-  Record.fromSnapshot(DocumentSnapshot snapshot)
-      : this.fromMap(snapshot.data, reference: snapshot.reference);
-  @override
-  String toString() => "Record<$id:$image:$title:$writer:$series:$tag>";
-}
 
 
 

@@ -6,7 +6,6 @@ import 'package:modo/ui/updateDetail_page.dart';
 import 'package:modo/ui/update_page.dart';
 
 final routes = {
-  '/': (BuildContext context) => AuthPage(),
-  '/home': (BuildContext context) => TabPage(),
+  '/': (BuildContext context) => TabPage(),
   '/detail': (BuildContext context) => DetailPage(),
 };
