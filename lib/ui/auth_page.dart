@@ -77,7 +77,7 @@ class _AuthPageState extends State<AuthPage> {
                             child: Text("로그인",style: TextStyle(fontSize: 15.0,),),
                           ),
                           onPressed: () {
-                            Navigator.pushNamed(context, '/home');
+                            Navigator.pushReplacementNamed(context, '/home');
 //                          setState(() {
 //                            formVisible = true;
 //                            _formsIndex = 1;

@@ -32,8 +32,8 @@ Widget _buildSeriesListCard(BuildContext context, DocumentSnapshot data) {
     height: 50,
     child: Column(
       children: <Widget>[
-        Text(record.title),
-        Divider()
+        Text(record.title + " " +record.date.toDate().toString()),
+        Divider(),
       ],
     ),
   );

@@ -35,9 +35,9 @@ Widget _buildWorksListCard(BuildContext context, DocumentSnapshot data) {
     secondaryActions: <Widget>[
       IconSlideAction(
         caption: '구독',
-        color: Colors.black45,
-        icon: Icons.more_horiz,
-        onTap: () => print('More'),
+        color: Colors.orange,
+        icon: Icons.add,
+        onTap: () => print('subscribe'),
       ),
     ],
     child: Row(
@@ -141,7 +141,16 @@ class _UpdatePageState extends State<UpdatePage> {
         Provider<int>.value(value: 10),
       ],
       child: Scaffold(
-        appBar: AppBar(title : _appbarDropdownButton(),actions: <Widget>[], backgroundColor: Colors.white,),
+        appBar: AppBar(
+          title : _appbarDropdownButton(),
+          actions: <Widget>[
+            IconButton(
+                icon: const Icon(Icons.search),
+                tooltip: 'Search',
+                onPressed: null
+            )
+          ],
+          backgroundColor: Colors.white,),
         body: SingleChildScrollView(
           child: Column(
             children: <Widget>[

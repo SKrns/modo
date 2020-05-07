@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'update_page.dart';
+import 'subscribe_page.dart';
+import 'my_page.dart';
 
 class TabPage extends StatefulWidget {
   @override
@@ -11,9 +13,9 @@ class _TabPageState extends State<TabPage> {
 
   List _pages = [
     UpdatePage(),
-    Text('구독작품'),
+    Text('hi'),
     Text('준비 중 입니다.'),
-    Text('My'),
+    MyPage(),
   ];
   @override
   Widget build(BuildContext context) {
