@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: '/',
         routes: routes,
+//          home: new AuthPage(auth: new Auth())
       ),
     );
   }

@@ -1,25 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:modo/services/authentication.dart';
 
-Widget _buildSectionTitle(String name) {
-  return Row(
-    children: <Widget>[
-      Expanded(
-        child: Container(
-          color: Colors.black12,
-          child: Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Text(name),
-          ),
-        ),
-      ),
-    ],
-  );
+
+
+class MyPage extends StatefulWidget {
+  MyPage({Key key, this.auth, this.userId, this.logoutCallback})
+      : super(key: key);
+
+  final BaseAuth auth;
+  final VoidCallback logoutCallback;
+  final String userId;
+
+  @override
+  _MyPageState createState() => _MyPageState();
 }
 
+class _MyPageState extends State<MyPage> {
 
-Widget _buildProfileBody() {
+  Widget _buildSectionTitle(String name) {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: Container(
+            color: Colors.black12,
+            child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Text(name),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
-  return Column(
+  signOut() async {
+    try {
+      await widget.auth.signOut();
+      widget.logoutCallback();
+    } catch (e) {
+      print(e);
+    }
+  }
+
+
+
+
+  Widget _buildProfileBody() {
+
+    return Column(
       children: <Widget>[
         Row(
           children: <Widget>[
@@ -34,89 +62,89 @@ Widget _buildProfileBody() {
               ),
             ),
             Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text('권순호',style: TextStyle(fontSize: 20.0),),
-                  Text('rnsk3626@gmail.com'),
-                ],
-              )
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text('권순호',style: TextStyle(fontSize: 20.0),),
+                    Text(widget.userId),
+                  ],
+                )
             ),
             Expanded(
               flex: 1,
               child: Container(
 //                color: Colors.blueAccent,
-                child: Text('수정'),
+                child: InkWell(
+                  child: Text(
+                    '로그아웃',
+                  ),
+                  onTap: signOut,
+                ),
               ),
             ),
           ],
         )
 
       ],
-  );
+    );
 
-}
+  }
 
-Widget _buildMyWorks(BuildContext context) {
-  return Container(
+  Widget _buildMyWorks(BuildContext context) {
+    return Container(
 //    color: Colors.orangeAccent,
-    height: 150,
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: <Widget>[
-        Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            InkWell(
-              onTap: () => Navigator.pushNamed(context, '/edit'),
-              child: Container(
-                color: Colors.black12,
-                width: 75,
-                height: 100,
-                child: Icon(Icons.add)
+      height: 150,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              InkWell(
+                onTap: () => Navigator.pushNamed(context, '/addwork'),
+                child: Container(
+                    color: Colors.black12,
+                    width: 75,
+                    height: 100,
+                    child: Icon(Icons.add)
+                ),
               ),
-            ),
-            Text('추가')
-          ],
-        ),
+              Text('추가')
+            ],
+          ),
 //        Padding(padding: EdgeInsets.all(6.0)),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Container(
-                color: Colors.black12,
-                width: 75,
-                height: 100,
-                child: Icon(Icons.add)
-            ),
-            Text('추가')
-          ],
-        ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              Container(
+                  color: Colors.black12,
+                  width: 75,
+                  height: 100,
+                  child: Icon(Icons.add)
+              ),
+              Text('추가')
+            ],
+          ),
 //        Padding(padding: EdgeInsets.all(6.0)),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Container(
-                color: Colors.black12,
-                width: 75,
-                height: 100,
-                child: Icon(Icons.add)
-            ),
-            Text('추가')
-          ],
-        ),
-      ],
-    ),
-  );
-}
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              Container(
+                  color: Colors.black12,
+                  width: 75,
+                  height: 100,
+                  child: Icon(Icons.add)
+              ),
+              Text('추가')
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
-class MyPage extends StatefulWidget {
-  @override
-  _MyPageState createState() => _MyPageState();
-}
 
-class _MyPageState extends State<MyPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

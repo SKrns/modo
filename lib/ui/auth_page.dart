@@ -1,8 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:modo/assets.dart';
+import 'package:modo/ui/login_page.dart';
+import 'package:modo/ui/tab_page.dart';
 import 'package:provider/provider.dart';
+import 'package:modo/services/authentication.dart';
+
+enum AuthStatus {
+  NOT_DETERMINED,
+  NOT_LOGGED_IN,
+  LOGGED_IN,
+}
+
 class AuthPage extends StatefulWidget {
+
+  AuthPage({this.auth});
+
+  final BaseAuth auth;
+
   @override
   _AuthPageState createState() => _AuthPageState();
 }
@@ -11,16 +26,53 @@ class _AuthPageState extends State<AuthPage> {
 
   bool formVisible;
   int _formsIndex;
+  AuthStatus authStatus = AuthStatus.NOT_DETERMINED;
+  String _userId = "";
 
   @override
   void initState() {
-    // TODO: implement initState
+    widget.auth.getCurrentUser().then((user) {
+      setState(() {
+        if (user != null) {
+          _userId = user?.uid;
+        }
+        authStatus =
+        user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
+      });
+    });
     super.initState();
     formVisible = false;
     _formsIndex = 1;
   }
-  @override
-  Widget build(BuildContext context) {
+
+  void loginCallback() {
+    widget.auth.getCurrentUser().then((user) {
+      setState(() {
+        _userId = user.uid.toString();
+      });
+    });
+    setState(() {
+      authStatus = AuthStatus.LOGGED_IN;
+    });
+  }
+
+  void logoutCallback() {
+    setState(() {
+      authStatus = AuthStatus.NOT_LOGGED_IN;
+      _userId = "";
+    });
+  }
+
+  Widget buildWaitingScreen() {
+    return Scaffold(
+      body: Container(
+        alignment: Alignment.center,
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Widget authMainPage() {
     var record = Provider.of<int>(context);
     print(record);
     return MaterialApp(
@@ -77,7 +129,20 @@ class _AuthPageState extends State<AuthPage> {
                             child: Text("로그인",style: TextStyle(fontSize: 15.0,),),
                           ),
                           onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/home');
+//                            Navigator.pushReplacementNamed(context, '/home');
+//                            Navigator.pushNamed(context, '/login',arguments: <String, Object>{});
+//                              new LoginPage(
+//                                auth: widget.auth,
+//                                loginCallback: loginCallback,
+//                              );
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => LoginPage(
+                                  auth: widget.auth,
+                                  loginCallback: loginCallback,
+                                )),
+                              );
+
 //                          setState(() {
 //                            formVisible = true;
 //                            _formsIndex = 1;
@@ -124,6 +189,33 @@ class _AuthPageState extends State<AuthPage> {
         ),
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    switch (authStatus) {
+      case AuthStatus.NOT_DETERMINED:
+        return buildWaitingScreen();
+        break;
+      case AuthStatus.NOT_LOGGED_IN:
+        return authMainPage();
+        break;
+      case AuthStatus.LOGGED_IN:
+        if (_userId.length > 0 && _userId != null) {
+          return new TabPage(
+            userId: _userId,
+            auth: widget.auth,
+            logoutCallback: logoutCallback,
+          );
+        } else
+          return buildWaitingScreen();
+        break;
+      default:
+        return buildWaitingScreen();
+    }
+
+
   }
 }
 

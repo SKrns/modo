@@ -5,9 +5,16 @@ import 'package:modo/ui/tab_page.dart';
 import 'package:modo/ui/updateDetail_page.dart';
 import 'package:modo/ui/update_page.dart';
 import 'package:modo/ui/editor_page.dart';
+import 'package:modo/ui/login_page.dart';
+import 'package:modo/ui/addWork_page.dart';
+
+import 'package:modo/services/authentication.dart';
 
 final routes = {
-  '/': (BuildContext context) => TabPage(),
+  '/': (BuildContext context) => AuthPage(auth: new Auth()),
+  '/login': (BuildContext context) => LoginPage(),
+  '/tab': (BuildContext context) => TabPage(),
   '/detail': (BuildContext context) => DetailPage(),
   '/edit': (BuildContext context) => EditorPage(),
+  '/addwork': (BuildContext context) => AddWorkPage(),
 };

@@ -89,36 +89,40 @@ class EditorPageState extends State<EditorPage> {
     return NotusDocument.fromDelta(delta);
   }
 
+  // For this example we save our document to a temporary file.
+  final file = File(Directory.systemTemp.path + "/quick_start.json");
+
   void _saveDocument(BuildContext context) {
     // Notus documents can be easily serialized to JSON by passing to
     // `jsonEncode` directly
     final contents = jsonEncode(_controller.document);
-    // For this example we save our document to a temporary file.
-    final file = File(Directory.systemTemp.path + "/quick_start.json");
+
     // And show a snack bar on success.
     file.writeAsString(contents).then((_) {
       Scaffold.of(context).showSnackBar(SnackBar(content: Text("Saved.")));
+      _uploadFile().then((_) {
+        Scaffold.of(context).showSnackBar(SnackBar(content: Text("Uploaded.")));
+      });
     });
 
-    _uploadFile().then((_) {
-      Scaffold.of(context).showSnackBar(SnackBar(content: Text("Uploaded.")));
-    });
+
   }
 
   Future<void> _uploadFile() async {
     final String uuid = "test";
     final Directory systemTempDir = Directory.systemTemp;
-    final File file = await File('${systemTempDir.path}/foo$uuid.txt').create();
-    await file.writeAsString(kTestString);
-    assert(await file.readAsString() == kTestString);
+//    final File file = await File('${systemTempDir.path}/foo$uuid.txt').create();
+//    await file.writeAsString(kTestString);
+//    assert(await file.readAsString() == kTestString);
     final StorageReference ref =
-    FirebaseStorage.instance.ref().child('text').child('foo$uuid.txt');
+    FirebaseStorage.instance.ref().child('text').child('test_$uuid.json');
     final StorageUploadTask uploadTask = ref.putFile(
       file,
-      StorageMetadata(
-        contentLanguage: 'en',
-        customMetadata: <String, String>{'activity': 'test'},
-      ),
+//      StorageMetadata(
+//        contentLanguage: 'ko-dsfsdfkr',
+//        contentType: 'utf-8',
+////        customMetadata: <String, String>{'activity': 'test'},
+//      ),
     );
     final StorageTaskSnapshot downloadUrl = (await uploadTask.onComplete);
     final String url = (await downloadUrl.ref.getDownloadURL());

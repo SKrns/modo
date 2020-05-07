@@ -19,6 +19,7 @@ dependencies:
   sqflite: any
   path_provider: any
   zefyr: any
+  firebase_auth:
 
 dev_dependencies:
   flutter_test:
@@ -30,3 +31,5 @@ flutter:
   assets:
     - assets/room4.jpg
     - assets/books1.jpg
+    - assets/appstore.png
+    - assets/playstore.png

@@ -1,3 +1,4 @@
 class ImageAssets {
-  static const String authBackImg = 'assets/room4.jpg';
+  static const String authBackImg = 'assets/books1.jpg';
+  static const String modoIconImg = 'assets/appstore.png';
 }

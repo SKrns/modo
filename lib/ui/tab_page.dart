@@ -2,8 +2,16 @@ import 'package:flutter/material.dart';
 import 'update_page.dart';
 import 'subscribe_page.dart';
 import 'my_page.dart';
+import 'package:modo/services/authentication.dart';
 
 class TabPage extends StatefulWidget {
+  TabPage({Key key, this.auth, this.userId, this.logoutCallback})
+      : super(key: key);
+
+  final BaseAuth auth;
+  final VoidCallback logoutCallback;
+  final String userId;
+
   @override
   _TabPageState createState() => _TabPageState();
 }
@@ -11,14 +19,22 @@ class TabPage extends StatefulWidget {
 class _TabPageState extends State<TabPage> {
   int _selectedIndex = 0;
 
-  List _pages = [
-    UpdatePage(),
-    Text('hi'),
-    Text('준비 중 입니다.'),
-    MyPage(),
-  ];
   @override
   Widget build(BuildContext context) {
+
+//    final Map<String,Object> arguments = ModalRoute.of(context).settings.arguments as Map;
+//    auth = arguments['auth'];
+//    logoutCallback = arguments['logoutCallback'];
+//    userId = arguments['userId'];
+
+    List _pages = [
+      UpdatePage(),
+      Text('hi'),
+      Text('준비 중 입니다.'),
+      MyPage(userId: widget.userId,
+        auth: widget.auth,
+        logoutCallback: widget.logoutCallback,),
+    ];
     return Scaffold(
       body: Center(child: _pages[_selectedIndex]),
       bottomNavigationBar: BottomNavigationBar(
