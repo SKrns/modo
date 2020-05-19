@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:modo/routes.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 
 void main() => runApp(MyApp());
 
@@ -8,6 +9,10 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.portraitUp,
+    ]);
     return MultiProvider(
       providers: [
         Provider<int>.value(value: 50),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:modo/assets.dart';
 import 'package:modo/ui/login_page.dart';
+import 'package:modo/ui/signUp_page.dart';
 import 'package:modo/ui/tab_page.dart';
 import 'package:provider/provider.dart';
 import 'package:modo/services/authentication.dart';
@@ -24,8 +25,6 @@ class AuthPage extends StatefulWidget {
 
 class _AuthPageState extends State<AuthPage> {
 
-  bool formVisible;
-  int _formsIndex;
   AuthStatus authStatus = AuthStatus.NOT_DETERMINED;
   String _userId = "";
 
@@ -41,8 +40,6 @@ class _AuthPageState extends State<AuthPage> {
       });
     });
     super.initState();
-    formVisible = false;
-    _formsIndex = 1;
   }
 
   void loginCallback() {
@@ -135,6 +132,7 @@ class _AuthPageState extends State<AuthPage> {
 //                                auth: widget.auth,
 //                                loginCallback: loginCallback,
 //                              );
+
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) => LoginPage(
@@ -168,12 +166,28 @@ class _AuthPageState extends State<AuthPage> {
                         child: Padding(
                           padding: const EdgeInsets.all(10.0),
                           child: Text("회원가입",style: TextStyle(fontSize: 15.0,),),
+
                         ),
                         onPressed: () {
-                          setState(() {
-                            formVisible = true;
-                            _formsIndex = 2;
-                          });
+//                            Navigator.pushReplacementNamed(context, '/home');
+//                            Navigator.pushNamed(context, '/login',arguments: <String, Object>{});
+//                              new LoginPage(
+//                                auth: widget.auth,
+//                                loginCallback: loginCallback,
+//                              );
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => SignUp(
+                              auth: widget.auth,
+                              loginCallback: loginCallback,
+                            )),
+                          );
+
+//                          setState(() {
+//                            formVisible = true;
+//                            _formsIndex = 1;
+//                          });
                         },
 
                       ),
@@ -203,10 +217,14 @@ class _AuthPageState extends State<AuthPage> {
         break;
       case AuthStatus.LOGGED_IN:
         if (_userId.length > 0 && _userId != null) {
-          return new TabPage(
-            userId: _userId,
-            auth: widget.auth,
-            logoutCallback: logoutCallback,
+          return MultiProvider(
+            providers: [
+              Provider<String>.value(value: _userId),
+            ],
+            child: new TabPage(
+              auth: widget.auth,
+              logoutCallback: logoutCallback,
+            ),
           );
         } else
           return buildWaitingScreen();

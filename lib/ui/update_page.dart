@@ -1,11 +1,26 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:modo/models/works.dart';
+
 var _cur_genre = "ALL";
+String userId;
+
+void addSubscribe(String id) async{
+  List mySubscribe;
+  Firestore.instance.collection('users').document(userId).get().then((DocumentSnapshot document){
+    mySubscribe =document['mySubscribe']??[];
+    mySubscribe.add(id);
+  }).then((e){
+    Firestore.instance.collection('users').document(userId).updateData(
+        {'mySubscribe': mySubscribe});
+  });
+
+}
 
 Widget _buildWorksBody(BuildContext context) {
   return StreamBuilder<QuerySnapshot>(
@@ -23,6 +38,10 @@ Widget _buildWorksList(BuildContext context, List<DocumentSnapshot> snapshot) {
   );
 }
 
+Widget _buildSlidable(String userId, String recordId) {
+  //Todo: 구독 해제 & 구독 추가
+}
+
 Widget _buildWorksListCard(BuildContext context, DocumentSnapshot data) {
   final record = Works.fromSnapshot(data);
   print(record.genre);
@@ -37,7 +56,7 @@ Widget _buildWorksListCard(BuildContext context, DocumentSnapshot data) {
         caption: '구독',
         color: Colors.orange,
         icon: Icons.add,
-        onTap: () => print('subscribe'),
+        onTap: () => addSubscribe(record.id),
       ),
     ],
     child: Row(
@@ -135,7 +154,7 @@ class _UpdatePageState extends State<UpdatePage> {
 
   @override
   Widget build(BuildContext context) {
-
+    userId = Provider.of<String>(context);
     return MultiProvider(
       providers: [
         Provider<int>.value(value: 10),
@@ -154,6 +173,23 @@ class _UpdatePageState extends State<UpdatePage> {
         body: SingleChildScrollView(
           child: Column(
             children: <Widget>[
+              Container(
+              width: MediaQuery.of(context).size.width,
+                height: 200.0,
+                child: Swiper(
+                  itemBuilder: _swiperBuilder,
+                  itemCount: 1,
+                  pagination: new SwiperPagination(
+                      builder: DotSwiperPaginationBuilder(
+                        color: Colors.black54,
+                        activeColor: Colors.white,
+                      )),
+                  control: new SwiperControl(),
+                  scrollDirection: Axis.horizontal,
+                  autoplay: true,
+                  onTap: (index) => print('$index'),
+                )),
+              Divider(),
               _buildWorksBody(context),
 //            _mainListView('http://image.yes24.com/Goods/89826582/L','이 시국','코로나','1화. 일본 망했다','#기괴 #부드러운 그림'),
 //            _mainListView('http://image.yes24.com/goods/89729709/800x0','이정도면 거의 내 사업','흔한 말단직원','3화. 그냥 내가 먹을까','#판타지 #기묘한 느낌의 그림'),
@@ -166,6 +202,12 @@ class _UpdatePageState extends State<UpdatePage> {
         ),
       ),
     );
+  }
+  Widget _swiperBuilder(BuildContext context, int index) {
+    return (Image.network(
+      "http://via.placeholder.com/350x150",
+      fit: BoxFit.fill,
+    ));
   }
 }
 

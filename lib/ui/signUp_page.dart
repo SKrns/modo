@@ -3,28 +3,28 @@
 import 'package:flutter/material.dart';
 import 'package:modo/assets.dart';
 import 'package:modo/services/authentication.dart';
-import 'package:modo/ui/signUp_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class LoginPage extends StatefulWidget {
+class SignUp extends StatefulWidget {
 
-  LoginPage({this.auth, this.loginCallback});
+  SignUp({this.auth, this.loginCallback});
 
   final BaseAuth auth;
   final VoidCallback loginCallback;
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _SignUpState createState() => _SignUpState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _SignUpState extends State<SignUp> {
   bool _isLoading ;
   var _email;
   var _password;
+  var _phone;
   var _errorMessage;
-  bool _isLoginForm;
   final _formKey = new GlobalKey<FormState>();
 
-  // Check if form is valid before perform login or signup
+  // Check if form is valid before perform login or SignUp
   bool validateAndSave() {
     final form = _formKey.currentState;
     if (form.validate()) {
@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
     return false;
   }
 
-  // Perform login or signup
+  // Perform login or SignUp
   void validateAndSubmit() async {
     setState(() {
       _errorMessage = "";
@@ -43,20 +43,17 @@ class _LoginPageState extends State<LoginPage> {
     if (validateAndSave()) {
       String userId = "";
       try {
-        if (_isLoginForm) {
-          userId = await widget.auth.signIn(_email, _password);
-          print('Signed in: $userId');
-        } else {
-          userId = await widget.auth.signUp(_email, _password);
-          //widget.auth.sendEmailVerification();
-          //_showVerifyEmailSentDialog();
-          print('Signed up user: $userId');
-        }
+
+        userId = await widget.auth.signUp(_email, _password);
+        //widget.auth.sendEmailVerification();
+        //_showVerifyEmailSentDialog();
+        print('Signed up user: $userId');
+
         setState(() {
           _isLoading = false;
         });
 
-        if (userId.length > 0 && userId != null && _isLoginForm) {
+        if (userId.length > 0 && userId != null) {
           widget.loginCallback();
           Navigator.pop(context);
         }
@@ -91,9 +88,11 @@ class _LoginPageState extends State<LoginPage> {
           child: new ListView(
             shrinkWrap: true,
             children: <Widget>[
-              showLogo(),
+              showTerm(),
               showEmailInput(),
               showPasswordInput(),
+              showPhoneInput(),
+              showPhoneAuthButton(),
               showPrimaryButton(),
               showSecondaryButton(),
               showErrorMessage(),
@@ -102,17 +101,9 @@ class _LoginPageState extends State<LoginPage> {
         ));
   }
 
-  Widget showLogo() {
-    return new Hero(
-      tag: 'hero',
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(0.0, 70.0, 0.0, 0.0),
-        child: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          radius: 48.0,
-          child: Image.asset(ImageAssets.modoIconImg),
-        ),
-      ),
+  Widget showTerm() {
+    return new Text(
+     "약관 + 전화 인증"
     );
   }
 
@@ -154,6 +145,49 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  Widget showPhoneInput() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
+      child: new TextFormField(
+        maxLines: 1,
+        obscureText: true,
+        autofocus: false,
+        decoration: new InputDecoration(
+            hintText: 'Phone',
+            icon: new Icon(
+              Icons.phone,
+              color: Colors.grey,
+            )),
+        validator: (value) => value.isEmpty ? 'Phone can\'t be empty' : null,
+        onSaved: (value) => _phone = value.trim(),
+      ),
+    );
+  }
+
+  Widget showPhoneAuthButton() {
+    return MaterialButton(child: Text('인증'),onPressed: null);
+  }
+
+//  void phoneAuth() async{
+//    var firebaseAuth = FirebaseAuth.instance;
+//
+//    firebaseAuth.verifyPhoneNumber(
+//        phoneNumber: _phone,
+//        timeout: Duration(seconds: 60),
+//        verificationCompleted: verificationCompleted,
+//        verificationFailed: verificationFailed,
+//        codeSent: codeSent,
+//        codeAutoRetrievalTimeout: codeAutoRetrievalTimeout);
+//  }
+//
+//  final PhoneCodeSent codeSent =
+//      (String verificationId, [int forceResendingToken]) async {
+//    this.actualCode = verificationId;
+//    setState(() {
+//      print('Code sent to $phone');
+//      status = "\nEnter the code sent to " + phone;
+//    });
+//  };
 
   Widget showPrimaryButton() {
     return new Padding(
@@ -165,7 +199,7 @@ class _LoginPageState extends State<LoginPage> {
             shape: new RoundedRectangleBorder(
                 borderRadius: new BorderRadius.circular(30.0)),
             color: Colors.blue,
-            child: new Text(_isLoginForm ? '로그인' : '회원가입',
+            child: new Text('회원가입',
                 style: new TextStyle(fontSize: 20.0, color: Colors.white)),
             onPressed: validateAndSubmit,
           ),
@@ -175,7 +209,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget showSecondaryButton() {
     return new FlatButton(
         child: new Text(
-            _isLoginForm ? '회원 가입' : 'Have an account? Sign in',
+            '계정이 있으면? 로그인',
             style: new TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300)),
         onPressed: toggleFormMode);
   }
@@ -202,7 +236,6 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     _errorMessage = "";
     _isLoading = false;
-    _isLoginForm = true;
     super.initState();
   }
   void resetForm() {
@@ -210,14 +243,7 @@ class _LoginPageState extends State<LoginPage> {
     _errorMessage = "";
   }
   void toggleFormMode() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => SignUp(
-        auth: widget.auth,
-        loginCallback: widget.loginCallback,
-      )),
-    );
-//    resetForm();
+    resetForm();
 //    setState(() {
 //      _isLoginForm = !_isLoginForm;
 //    });
@@ -229,7 +255,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('로그인'),
+        title: const Text('회원가입'),
       ),
       body: Stack(
         children: <Widget>[

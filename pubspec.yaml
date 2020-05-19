@@ -19,7 +19,10 @@ dependencies:
   sqflite: any
   path_provider: any
   zefyr: any
-  firebase_auth:
+  firebase_auth: any
+  flutter_swiper: any
+  image_picker: any
+  http: any
 
 dev_dependencies:
   flutter_test:

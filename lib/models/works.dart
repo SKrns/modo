@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Works {
-  String image;
+  final String image;
   final String title;
   final String writer;
   final String series;
@@ -13,7 +13,7 @@ class Works {
 
   Works.fromMap(Map<String, dynamic> map, {this.reference})
       : id = reference.documentID ?? 'no',
-        image = map['image'] ?? 'http://image.yes24.com/goods/89729709/800x0',
+        image = map['image'] ?? 'http://image.yes24.com/goods/89826582/800x0',
         title = map['title'] ?? '',
         writer = map['writer'] ?? '',
         genre = map['genre'] ?? '',

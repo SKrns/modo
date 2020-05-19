@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 abstract class BaseAuth {
   Future<String> signIn(String email, String password);
 
@@ -29,6 +31,8 @@ class Auth implements BaseAuth {
     AuthResult result = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email, password: password);
     FirebaseUser user = result.user;
+    Firestore.instance.collection('users').document(user.uid).setData(
+        { 'nickname': "test", 'photoUrl': "", 'id': email, 'mySubscribe':[] });
     return user.uid;
   }
 
