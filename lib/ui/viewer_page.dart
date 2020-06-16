@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:quill_delta/quill_delta.dart';
 import 'package:zefyr/zefyr.dart';
@@ -65,9 +66,7 @@ class ViewerPageState extends State<ViewerPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.record.title),
-
       ),
-
       body: body,
     );
   }
@@ -91,6 +90,7 @@ class ViewerPageState extends State<ViewerPage> {
     final net = await fetchJSON(http.Client());
     String netStr = net.toString();
     if (netStr!=null) {
+
       return NotusDocument.fromJson(jsonDecode(netStr));
     }
     final Delta delta = Delta()..insert("Start\n");
@@ -100,44 +100,6 @@ class ViewerPageState extends State<ViewerPage> {
   // For this example we save our document to a temporary file.
   final file = File(Directory.systemTemp.path + "/quick_start.json");
 
-  void _saveDocument(BuildContext context) {
-    // Notus documents can be easily serialized to JSON by passing to
-    // `jsonEncode` directly
-    final contents = jsonEncode(_controller.document);
 
-    // And show a snack bar on success.
-    file.writeAsString(contents).then((_) {
-      Scaffold.of(context).showSnackBar(SnackBar(content: Text("Saved.")));
-      _uploadFile().then((_) {
-        Scaffold.of(context).showSnackBar(SnackBar(content: Text("Uploaded.")));
-      });
-    }).then((_){
-
-    });
-
-
-  }
-
-  Future<void> _uploadFile() async {
-    final String uuid = "test";
-    final Directory systemTempDir = Directory.systemTemp;
-//    final File file = await File('${systemTempDir.path}/foo$uuid.txt').create();
-//    await file.writeAsString(kTestString);
-//    assert(await file.readAsString() == kTestString);
-    final StorageReference ref =
-    FirebaseStorage.instance.ref().child('text').child('error.json');
-    final StorageUploadTask uploadTask = ref.putFile(
-      file,
-//      StorageMetadata(
-//        contentLanguage: 'ko-dsfsdfkr',
-//        contentType: 'utf-8',
-////        customMetadata: <String, String>{'activity': 'test'},
-//      ),
-    );
-    final StorageTaskSnapshot downloadUrl = (await uploadTask.onComplete);
-    final String url = (await downloadUrl.ref.getDownloadURL());
-    print("URL is $url");
-
-  }
 
 }

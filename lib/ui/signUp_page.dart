@@ -65,8 +65,11 @@ class _SignUpState extends State<SignUp> {
           _formKey.currentState.reset();
         });
       }
+    } else {
+      _isLoading = false;
     }
   }
+
 
 
 
@@ -92,7 +95,6 @@ class _SignUpState extends State<SignUp> {
               showEmailInput(),
               showPasswordInput(),
               showPhoneInput(),
-              showPhoneAuthButton(),
               showPrimaryButton(),
               showSecondaryButton(),
               showErrorMessage(),
@@ -103,7 +105,7 @@ class _SignUpState extends State<SignUp> {
 
   Widget showTerm() {
     return new Text(
-     "약관 + 전화 인증"
+     "약관 \n1.개인정보이용동의 \n2.서약서 불건전 만남, 혹은 주선하거나 이에 준하는 행위 적발시 1회.경고(사전문자) 2회. 과태료 천만원(법과는별개)\n\n수집할데이터\n1.이름 2.성별 3.휴대폰인증 4.아이디 5.패스워드 6.주소지"
     );
   }
 
@@ -144,28 +146,36 @@ class _SignUpState extends State<SignUp> {
       ),
     );
   }
-
   Widget showPhoneInput() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
-      child: new TextFormField(
-        maxLines: 1,
-        obscureText: true,
-        autofocus: false,
-        decoration: new InputDecoration(
-            hintText: 'Phone',
-            icon: new Icon(
-              Icons.phone,
-              color: Colors.grey,
-            )),
-        validator: (value) => value.isEmpty ? 'Phone can\'t be empty' : null,
-        onSaved: (value) => _phone = value.trim(),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            flex: 8,
+            child: new TextFormField(
+              readOnly: true,
+              maxLines: 1,
+              autofocus: false,
+              initialValue: "+821012345678",
+              decoration: new InputDecoration(
+                  hintText: 'Phone',
+                  icon: new Icon(
+                    Icons.phone,
+                    color: Colors.grey,
+                  )),
+              validator: (value) => value.isEmpty ? 'Phone can\'t be empty' : null,
+              onSaved: (value) => _phone = value.trim(),
+            ),
+          ),
+          Expanded(flex: 2,child: showPhoneAuthButton())
+        ],
       ),
     );
   }
 
   Widget showPhoneAuthButton() {
-    return MaterialButton(child: Text('인증'),onPressed: null);
+    return MaterialButton(child: Text('인증'), onPressed: null);
   }
 
 //  void phoneAuth() async{
@@ -199,7 +209,7 @@ class _SignUpState extends State<SignUp> {
             shape: new RoundedRectangleBorder(
                 borderRadius: new BorderRadius.circular(30.0)),
             color: Colors.blue,
-            child: new Text('회원가입',
+            child: new Text('동의 및 회원가입',
                 style: new TextStyle(fontSize: 20.0, color: Colors.white)),
             onPressed: validateAndSubmit,
           ),
@@ -209,9 +219,9 @@ class _SignUpState extends State<SignUp> {
   Widget showSecondaryButton() {
     return new FlatButton(
         child: new Text(
-            '계정이 있으면? 로그인',
-            style: new TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300)),
-        onPressed: toggleFormMode);
+            '로그인',
+            style: new TextStyle(fontWeight: FontWeight.w300)),
+        onPressed: () => Navigator.pushReplacementNamed(context, '/login'));
   }
 
   Widget showErrorMessage() {

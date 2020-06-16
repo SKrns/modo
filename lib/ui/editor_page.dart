@@ -35,7 +35,7 @@ class EditorPageState extends State<EditorPage> {
   bool editMode = false;
   final _formKey = new GlobalKey<FormState>();
   String _title;
-
+  bool _isLoading = false;
   /// Allows to control the editor and the document.
   ZefyrController _controller;
 
@@ -54,7 +54,20 @@ class EditorPageState extends State<EditorPage> {
         });
       });
     _focusNode = FocusNode();
+    _isLoading = false;
   }
+
+  Widget showCircularProgress() {
+    if (_isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+    return Container(
+      height: 0.0,
+      width: 0.0,
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -104,10 +117,15 @@ class EditorPageState extends State<EditorPage> {
             )
           ],
       ),
-      body: Column(
+      body: Stack(
         children: <Widget>[
-          titleField(),
-          Expanded(child: body),
+          Column(
+            children: <Widget>[
+              titleField(),
+              Expanded(child: body),
+            ],
+          ),
+          showCircularProgress()
         ],
       ),
     );
@@ -147,6 +165,9 @@ class EditorPageState extends State<EditorPage> {
   final file = File(Directory.systemTemp.path + "/auto_save.json");
 
   void _saveDocument(BuildContext context) {
+    setState(() {
+      _isLoading = true;
+    });
     // Notus documents can be easily serialized to JSON by passing to
     // `jsonEncode` directly
     final form = _formKey.currentState;

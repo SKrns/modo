@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:modo/widgets/subscribe.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -10,21 +11,18 @@ import 'package:modo/models/works.dart';
 var _cur_genre = "ALL";
 String userId;
 
-void addSubscribe(String id) async{
-  List mySubscribe;
-  Firestore.instance.collection('users').document(userId).get().then((DocumentSnapshot document){
-    mySubscribe =document['mySubscribe']??[];
-    mySubscribe.add(id);
-  }).then((e){
-    Firestore.instance.collection('users').document(userId).updateData(
-        {'mySubscribe': mySubscribe});
-  });
 
-}
 
 Widget _buildWorksBody(BuildContext context) {
+  Stream<QuerySnapshot> query;
+  if(_cur_genre == 'ALL') {
+    query =  Firestore.instance.collection('works').snapshots();
+  } else {
+    query =  Firestore.instance.collection('works').where('genre',isEqualTo: _cur_genre ).snapshots();
+  }
+
   return StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance.collection('works').snapshots(),
+      stream: query,
       builder: (context, snapshot) {
         if (!snapshot.hasData) return LinearProgressIndicator();
         return _buildWorksList(context, snapshot.data.documents);
@@ -56,7 +54,7 @@ Widget _buildWorksListCard(BuildContext context, DocumentSnapshot data) {
         caption: '구독',
         color: Colors.orange,
         icon: Icons.add,
-        onTap: () => addSubscribe(record.id),
+        onTap: () => addSubscribe(record.id, userId),
       ),
     ],
     child: Row(
@@ -128,9 +126,10 @@ class UpdatePage extends StatefulWidget {
   @override
   _UpdatePageState createState() => _UpdatePageState();
 }
+
 List _listGenre = ["ALL", "판타지", "로멘스", "일상", "개그", "스포츠", "게임", "공포"];
 class _UpdatePageState extends State<UpdatePage> {
-  var _value = "ALL";
+  var _value = _cur_genre;
 
   DropdownButtonHideUnderline _appbarDropdownButton() => DropdownButtonHideUnderline(
     child: DropdownButton(
@@ -166,7 +165,7 @@ class _UpdatePageState extends State<UpdatePage> {
             IconButton(
                 icon: const Icon(Icons.search),
                 tooltip: 'Search',
-                onPressed: null
+                onPressed: () => Navigator.pushNamed(context, '/search')
             )
           ],
           backgroundColor: Colors.white,),

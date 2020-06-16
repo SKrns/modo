@@ -15,6 +15,8 @@ abstract class BaseAuth {
   Future<void> signOut();
 
   Future<bool> isEmailVerified();
+
+  Future<void> sendSMSVerification(String phone);
 }
 
 class Auth implements BaseAuth {
@@ -53,5 +55,9 @@ class Auth implements BaseAuth {
   Future<bool> isEmailVerified() async {
     FirebaseUser user = await _firebaseAuth.currentUser();
     return user.isEmailVerified;
+  }
+
+  Future<void> sendSMSVerification(String phone) async {
+      await FirebaseAuth.instance.verifyPhoneNumber(phoneNumber: phone, timeout: const Duration(seconds: 60), verificationCompleted: null, verificationFailed: null, codeSent: null, codeAutoRetrievalTimeout: null);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:modo/ui/editor_page.dart';
 import 'package:provider/provider.dart';
 import 'update_page.dart';
@@ -33,32 +34,34 @@ Widget _buildSeriesListCard(BuildContext context, DocumentSnapshot data, String 
   print(record.id+"");
   return Container(
     padding: EdgeInsets.all(4.0),
-    child: InkWell(
-      onTap: (){
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => EditorPage(
-            documentId: documentId,
-            documentdocumentID:record.id,
-            userId:"?",
-            src:record.src,
-
-        ))
-        );
-
-      },
-      child: Column(
+    child: Container(
+      child: Row(
         children: <Widget>[
-          Padding(padding: EdgeInsets.all(6.0)),
-          Text(record.title + " " +record.date.toDate().toString()),
-          Divider(),
+          Padding(padding: EdgeInsets.fromLTRB(10, 25, 10, 25)),
+          Expanded(child: Text(record.title,overflow: TextOverflow.fade,),flex: 4,),
+          Expanded(child: Text(new DateFormat("yy-MM-dd").format(record.date.toDate()).toString()),flex: 2,),
+          Expanded(child: Center(child: Text("조회 : "+record.view.toString(), style: TextStyle(color: Colors.black54),)),flex: 2,),
+          Expanded(child: Center(child: OutlineButton(child: Text('수정'),onPressed: (){
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => EditorPage(
+                  documentId: documentId,
+                  documentdocumentID:record.id,
+                  userId:"?",
+                  src:record.src,
+
+                ))
+            );
+          },
+          )),flex: 2,),
         ],
       ),
     ),
   );
 
 }
+
+
 
 class AddSeriesPage extends StatefulWidget {
   AddSeriesPage({Key key, this.documentId, this.userId, this.record})
@@ -81,8 +84,8 @@ class _AddSeriesPageState extends State<AddSeriesPage> {
       appBar: AppBar(title: Text(widget.record.title),
         actions: <Widget>[
           Builder(
-            builder: (context) => IconButton(
-              icon: Icon(Icons.add),
+            builder: (context) => MaterialButton(
+              child: Text("작품 올리기"),
               onPressed: (){
                 Navigator.push(
                   context,
@@ -90,7 +93,6 @@ class _AddSeriesPageState extends State<AddSeriesPage> {
                       documentId:widget.documentId,
                       userId:widget.userId,
                       src:""
-
                   )),
                 );
               },

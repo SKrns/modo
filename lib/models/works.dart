@@ -8,6 +8,7 @@ class Works {
   final String genre;
   final String tag;
   final String id;
+  final String story;
 
   final DocumentReference reference;
 
@@ -18,7 +19,9 @@ class Works {
         writer = map['writer'] ?? '',
         genre = map['genre'] ?? '',
         series = map['series'] ?? '',
+        story = map['story'] ?? ' ',
         tag = map['tag'] ?? '';
+
   Works.fromSnapshot(DocumentSnapshot snapshot)
       : this.fromMap(snapshot.data, reference: snapshot.reference);
   @override

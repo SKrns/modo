@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
@@ -24,11 +25,22 @@ final wantDrawList = ['기괴', "따스한"];
 class _AddWorkPageState extends State<AddWorkPage> {
   File _image;
   final _formKey = new GlobalKey<FormState>();
+  bool _isLoading = false;
+
+  Widget showCircularProgress() {
+    if (_isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+    return Container(
+      height: 0.0,
+      width: 0.0,
+    );
+  }
 
   String generateTag(List value) {
-      String output = "";
-      value.forEach((i) =>output+="#"+i+" " );
-      return output;
+    String output = "";
+    value.forEach((i) =>output+="#"+i+" " );
+    return output;
   }
 
   void sendAddWorkData(String userId) async {
@@ -40,15 +52,15 @@ class _AddWorkPageState extends State<AddWorkPage> {
       docRef.setData(
           { 'genre': _wantGenreValue,
             'type': _wantTypeValue ,
-            'draw': _wantDrawValue,
-            'want':_wantWriter,
+            'story':_wantWriter,
             'title':_title,
             'user' : userId,
+            'image' : _src ?? null,
             'writer':'test',
-            'tag':generateTag([_wantGenreValue,_wantTypeValue,_wantDrawValue]),
+            'tag':generateTag([_wantGenreValue,_wantTypeValue]),
             'series':'아직 없어요 ㅠㅠ'
           }
-          );
+      );
 
 //      Firestore.instance.collection('users').document(userId).get().then((DocumentSnapshot document){
 //        myWork = List.from(document['myWork']??[]);
@@ -77,36 +89,50 @@ class _AddWorkPageState extends State<AddWorkPage> {
       print('Error sendAddwork $e');
     }
   }
+  String _src;
+  void makeImageSrc(String userId) async{
+    if(_image != null) {
+      final StorageReference ref = FirebaseStorage.instance.ref().child(widget.userID+"_"+_title+'.jpg');
+      final StorageUploadTask uploadTask = ref.putFile(
+        _image,
+      );
+      final StorageTaskSnapshot downloadUrl = (await uploadTask.onComplete);
+      _src = (await downloadUrl.ref.getDownloadURL());
+
+
+    }
+    sendAddWorkData(userId);
+  }
+
+
 
   void addWorkSummit(String userId) async{
     final form = _formKey.currentState;
-      setState(() {
+    setState(() {
 
-      });
-      if(form.validate() && validateChip()) {
-          sendAddWorkData(userId);
-      }
+    });
+    if(form.validate() && validateChip()) {
+//      sendAddWorkData(userId);
+        makeImageSrc(userId);
+    }
   }
 
   bool validateChip() {
     final String message = "항목을 선택해주세요.";
 
     print("asdasdsa");
-    _wantGenreMessage = _wantTypeMessage = _wantTypeMessage = "";
-    if (_wantGenreValue == null || _wantTypeValue == null || _wantDrawValue == null) {
+    _wantGenreMessage = _wantTypeMessage = "";
+    if (_wantGenreValue == null || _wantTypeValue == null) {
 
-        setState(() {
-          if(_wantGenreValue == null) {
-            _wantGenreMessage = message;
-          }
-          if(_wantTypeValue == null) {
-            _wantTypeMessage = message;
-          }
-          if(_wantDrawValue == null) {
-            _wantDrawMessage = message;
-          }
-        });
-        return false;
+      setState(() {
+        if(_wantGenreValue == null) {
+          _wantGenreMessage = message;
+        }
+        if(_wantTypeValue == null) {
+          _wantTypeMessage = message;
+        }
+      });
+      return false;
     }
     return true;
   }
@@ -114,18 +140,21 @@ class _AddWorkPageState extends State<AddWorkPage> {
   String _wantGenreValue;
   String _wantGenreMessage = "";
   Widget _wantGenre(List list) {
-    return Row(
+    return Wrap(
       children: list.map((data){
-        return ChoiceChip(
-          label: Text(data),
-          selected: _wantGenreValue == data,
-          onSelected: (bool selected) {
-            setState(() {
-              if(selected) {
-                _wantGenreValue = data;
-              }
-            });
-        } ,);
+        return Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: ChoiceChip(
+            label: Text(data),
+            selected: _wantGenreValue == data,
+            onSelected: (bool selected) {
+              setState(() {
+                if(selected) {
+                  _wantGenreValue = data;
+                }
+              });
+            } ,),
+        );
       }).toList(),
     );
   }
@@ -133,16 +162,19 @@ class _AddWorkPageState extends State<AddWorkPage> {
   String _wantTypeValue;
   String _wantTypeMessage = "";
   Widget _wantType(List list) {
-    return Row(
+    return Wrap(
       children: list.map((data){
-        return ChoiceChip(
-          label: Text(data),
-          selected: _wantTypeValue == data,
-          onSelected: (bool selected) {
-            setState(() {
-              _wantTypeValue = selected ? data : null;
-            });
-          } ,);
+        return Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: ChoiceChip(
+            label: Text(data),
+            selected: _wantTypeValue == data,
+            onSelected: (bool selected) {
+              setState(() {
+                _wantTypeValue = selected ? data : null;
+              });
+            } ,),
+        );
       }).toList(),
     );
   }
@@ -150,16 +182,19 @@ class _AddWorkPageState extends State<AddWorkPage> {
   String _wantDrawValue;
   String _wantDrawMessage = "";
   Widget _wantDraw(List list) {
-    return Row(
+    return Wrap(
       children: list.map((data){
-        return ChoiceChip(
-          label: Text(data),
-          selected: _wantDrawValue == data,
-          onSelected: (bool selected) {
-            setState(() {
-              _wantDrawValue = selected ? data : null;
-            });
-          } ,);
+        return Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: ChoiceChip(
+            label: Text(data),
+            selected: _wantDrawValue == data,
+            onSelected: (bool selected) {
+              setState(() {
+                _wantDrawValue = selected ? data : null;
+              });
+            } ,),
+        );
       }).toList(),
     );
   }
@@ -187,79 +222,116 @@ class _AddWorkPageState extends State<AddWorkPage> {
         title: Text('시리즈 추가'),
         actions: <Widget>[
           Builder(
-            builder: (context) => IconButton(icon: Icon(Icons.save), onPressed: () => addWorkSummit(widget.userID)),
+            builder: (context) => MaterialButton(
+              onPressed: () => addWorkSummit(widget.userID),
+              child: Text('저장'),
+            ),
           )
         ],
       ),
-      body: new Form(
-        key: _formKey,
-        child: Column(
-          children: <Widget>[
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                CircleAvatar(
-                  backgroundImage:
-                  (_image != null) ? FileImage(_image) : NetworkImage(""),
-                  radius: 30,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    RaisedButton(
-                      child: Text("갤러리"),
-                      onPressed: () {
+      body: Padding(
+        padding: EdgeInsets.all(6.0),
+        child: new Form(
+          key: _formKey,
+          child: Column(
+            children: <Widget>[
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  CircleAvatar(
+                    backgroundImage:
+                    (_image != null) ? FileImage(_image) : NetworkImage(""),
+                    radius: 30,
+                    child: InkWell(
+                      child: Icon(Icons.add),
+                      onTap: (){
                         _uploadImageToStorage(ImageSource.gallery);
                       },
                     ),
-                    Padding(padding: EdgeInsets.all(4.0)),
-                    RaisedButton(
-                      child: Text("카메라"),
-                      onPressed: () {
-                        _uploadImageToStorage(ImageSource.camera);
-                      },
-                    )
-                  ],
-                )
-              ],
-            ),
-            TextFormField(
-              maxLines: 1,
-              keyboardType: TextInputType.text,
-              autofocus: true,
-              decoration: new InputDecoration(
-                  hintText: '시리즈 제목',
-                  icon: new Icon(
-                    Icons.book,
-                    color: Colors.grey,
-                  )),
-              validator: (value) => value.isEmpty ? '제목이 비어 있습니다.' : null,
-              onChanged: (value) => _title = value.trim(),
-            ),
-            TextFormField(
-              maxLines: 1,
-              keyboardType: TextInputType.text,
-              autofocus: false,
-              decoration: new InputDecoration(
-                  hintText: '희망 작가',
-                  icon: new Icon(
-                    Icons.palette,
-                    color: Colors.grey,
-                  )),
-              validator: (value) => value.isEmpty ? ' 비어 있습니다.' : null,
-              onChanged: (value) => _wantWriter = value.trim(),
-            ),
-            Divider(),
-            _wantGenre(wantGenreList),
-            Text(_wantGenreMessage),
-            Divider(),
-            _wantType(wantTypeList),
-            Text(_wantTypeMessage),
-            Divider(),
-            _wantDraw(wantDrawList),
-            Text(_wantDrawMessage),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+//                      RaisedButton(
+//                        child: Text("갤러리"),
+//                        onPressed: () {
+//                          _uploadImageToStorage(ImageSource.gallery);
+//                        },
+//                      ),
+//                      Padding(padding: EdgeInsets.all(4.0)),
+//                      RaisedButton(
+//                        child: Text("카메라"),
+//                        onPressed: () {
+//                          _uploadImageToStorage(ImageSource.camera);
+//                        },
+//                      )
+                    ],
+                  )
+                ],
+              ),
+              Row(
+                children: <Widget>[
+                  Expanded(child: Text("작품명 : "), flex: 2,),
+                  Expanded(
+                    child: TextFormField(
+                      maxLines: 1,
+                      keyboardType: TextInputType.text,
+                      autofocus: true,
+                      decoration: new InputDecoration(
+                      ),
+                      validator: (value) => value.isEmpty ? '제목이 비어 있습니다.' : null,
+                      onChanged: (value) => _title = value.trim(),
+                    ),
+                    flex: 8,
+                  ),
+                ],
+              ),
+              Row(
+                children: <Widget>[
+                  Expanded(child: Text("줄거리 : "), flex: 2,),
+                  Expanded(
+                    child: TextFormField(
+                      maxLines: 1,
+                      keyboardType: TextInputType.text,
+                      autofocus: false,
+                      decoration: new InputDecoration(
+                      ),
+                      validator: (value) => value.isEmpty ? ' 비어 있습니다.' : null,
+                      onChanged: (value) => _wantWriter = value.trim(),
+                    ),
+                    flex: 8,
+                  ),
+                ],
+              ),
+//            Divider(),
+              Padding(padding: EdgeInsets.all(8.0)),
+              Row(
+                children: <Widget>[
+                  Text('# 형태 '),
+                  _wantGenre(wantGenreList),
+                ],
+              ),
+              Text(_wantGenreMessage),
+              Divider(),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Column(
+                    children: <Widget>[
+                      Padding(padding: EdgeInsets.all(10.0)),
+                      Text('# 장르 '),
+                    ],
+                  ),
+                  Expanded(child: _wantType(wantTypeList)),
+                ],
+              ),
+              Text(_wantTypeMessage),
+              Divider(),
+//            _wantDraw(wantDrawList),
+//            Text(_wantDrawMessage),
 
-          ],
+            ],
+          ),
         ),
       ),
 

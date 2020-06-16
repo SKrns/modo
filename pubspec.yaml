@@ -23,6 +23,10 @@ dependencies:
   flutter_swiper: any
   image_picker: any
   http: any
+  intl: any
+  epub: ^2.0.0
+  reorderables: any
+  pull_to_refresh: ^1.5.7
 
 dev_dependencies:
   flutter_test:
@@ -36,3 +40,4 @@ flutter:
     - assets/books1.jpg
     - assets/appstore.png
     - assets/playstore.png
+    - assets/sample.epub

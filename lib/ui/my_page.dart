@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:modo/services/authentication.dart';
@@ -6,6 +8,8 @@ import 'package:modo/ui/addWork_page.dart';
 import 'package:modo/ui/subscribe_page.dart';
 import 'package:provider/provider.dart';
 import 'package:modo/models/works.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
+
 
 
 class MyPage extends StatefulWidget {
@@ -22,7 +26,7 @@ class MyPage extends StatefulWidget {
 
 class _MyPageState extends State<MyPage> with ChangeNotifier {
   List<Widget> worksWidgetStack =[Container()];
-
+  Widget myWorks;
 //  @override
 //  void initState() {
 //    _loadMyWorks(widget.userId);
@@ -104,8 +108,20 @@ class _MyPageState extends State<MyPage> with ChangeNotifier {
 
   }
 
-  Widget _workWidget(String documentId) {
+  _add(BuildContext context, Works record, String documentId) async {
+    final add = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddSeriesPage(
+        documentId: documentId,
+        userId: userId,
+        record: record,
+      )),
+    ).then((value){
 
+    });
+  }
+
+  Widget _workWidget(String documentId) {
     return StreamBuilder(
       stream: Firestore.instance.collection('works').document(documentId).get().asStream(),
       builder: (context, s) {
@@ -115,19 +131,13 @@ class _MyPageState extends State<MyPage> with ChangeNotifier {
         final record = Works.fromSnapshot(item);
         print(record.title);
         if (record==null) return LinearProgressIndicator();
+
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             InkWell(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AddSeriesPage(
-                    documentId: documentId,
-                    userId: userId,
-                    record: record,
-                  )),
-                );
+                _add(context,record,documentId);
               },
               child: Container(
                 color: Colors.black12,
@@ -139,14 +149,13 @@ class _MyPageState extends State<MyPage> with ChangeNotifier {
             Text(record.title)
           ],
         );
-
-
-
       },
     );
+  }
 
-
-
+  void refreshScreen() async{
+    await Future.delayed(Duration(milliseconds: 500));
+    setState(() {myWorks = _buildMyWorks(context,userId);});
   }
 
   Widget _emptyWorkWidget(String userId) {
@@ -162,7 +171,7 @@ class _MyPageState extends State<MyPage> with ChangeNotifier {
                   userID:userId,
 
               )),
-            );
+            ).then((value) => refreshScreen());
           },
           child: Container(
               color: Colors.black12,
@@ -187,7 +196,7 @@ class _MyPageState extends State<MyPage> with ChangeNotifier {
         if (!s.hasData) return Center(child: CircularProgressIndicator());
         DocumentSnapshot item = s.data;
 
-        List subScribeList = item["myWork"];
+        List subScribeList = item["myWork"]??[];
 
         for(var i=0;i<3;i++) {
           if(worksWidgetStack.length>2) {
@@ -234,21 +243,49 @@ class _MyPageState extends State<MyPage> with ChangeNotifier {
 
 
   }
+  RefreshController _refreshController =
+  RefreshController(initialRefresh: true);
+
+  void _onRefresh() async{
+    // monitor network fetch
+    await Future.delayed(Duration(milliseconds: 1000));
+    // if failed,use refreshFailed()
+    refreshScreen();
+    _refreshController.refreshCompleted();
+  }
+
+  void _onLoading() async{
+    await Future.delayed(Duration(milliseconds: 1000));
+    refreshScreen();
+    if(mounted)
+      setState(() {
+      });
+    _refreshController.loadComplete();
+  }
 
 
   @override
   Widget build(BuildContext context) {
     final String userId = Provider.of<String>(context);
+    myWorks = _buildMyWorks(context,userId);
     return Scaffold(
       body: SafeArea(
-        child: Column(
+        child: SmartRefresher(
+          enablePullDown: true,
+          controller: _refreshController,
+          onRefresh: _onRefresh,
+          onLoading: _onLoading,
+          child: Column(
             children: <Widget>[
               _buildSectionTitle('My'),
               _buildProfileBody(userId),
               Padding(padding: EdgeInsets.all(10.0)),
               _buildSectionTitle('내 작품'),
-              _buildMyWorks(context,userId),
+              myWorks,
+
+
             ],
+          ),
         ),
       ),
     );
