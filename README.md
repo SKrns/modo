@@ -4,7 +4,7 @@
 
 자신의 글을 올리고 같이 꿈을 이룰 파트너를 찾는 어플리케이션
 
-<img src="README.assets/Simulator Screen Shot - iPhone 11 Pro - 2020-05-19 at 17.14.38.png" style="zoom:25%;" />   <img src="README.assets/Simulator Screen Shot - iPhone 11 Pro - 2020-05-19 at 17.14.29.png" alt="Simulator Screen Shot - iPhone 11 Pro - 2020-05-19 at 17.14.29" style="zoom:25%;" />
+<img src="README.assets/Simulator Screen Shot - iPhone 11 Pro - 2020-05-19 at 17.14.38.png" width="300" />    <img src="README.assets/Simulator Screen Shot - iPhone 11 Pro - 2020-05-19 at 17.14.29.png" alt="Simulator Screen Shot - iPhone 11 Pro - 2020-05-19 at 17.14.29" width="300" />
 
 ## Getting Started
 
